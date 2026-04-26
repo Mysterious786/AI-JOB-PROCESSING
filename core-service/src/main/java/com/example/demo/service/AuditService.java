@@ -25,17 +25,27 @@ public class AuditService {
     private static final Duration AUDIT_TTL = Duration.ofDays(30);
 
     public void log(String userEmail, String action, String detail) {
-        String entry = Instant.now() + " | " + action + " | " + detail;
-        String key = String.format(AUDIT_KEY, userEmail);
-        redis.opsForList().leftPush(key, entry);
-        redis.opsForList().trim(key, 0, MAX_EVENTS - 1);
-        redis.expire(key, AUDIT_TTL);
-        log.info("AUDIT user={} action={} detail={}", userEmail, action, detail);
+        try {
+            String entry = Instant.now() + " | " + action + " | " + detail;
+            String key = String.format(AUDIT_KEY, userEmail);
+            redis.opsForList().leftPush(key, entry);
+            redis.opsForList().trim(key, 0, MAX_EVENTS - 1);
+            redis.expire(key, AUDIT_TTL);
+            log.info("AUDIT user={} action={} detail={}", userEmail, action, detail);
+        } catch (Exception e) {
+            // Redis unavailable — log to console but don't fail the request
+            log.warn("AUDIT (Redis unavailable) user={} action={} detail={} error={}", userEmail, action, detail, e.getMessage());
+        }
     }
 
     public java.util.List<String> getAuditLog(String userEmail) {
-        String key = String.format(AUDIT_KEY, userEmail);
-        java.util.List<String> entries = redis.opsForList().range(key, 0, MAX_EVENTS - 1);
-        return entries != null ? entries : java.util.Collections.emptyList();
+        try {
+            String key = String.format(AUDIT_KEY, userEmail);
+            java.util.List<String> entries = redis.opsForList().range(key, 0, MAX_EVENTS - 1);
+            return entries != null ? entries : java.util.Collections.emptyList();
+        } catch (Exception e) {
+            log.warn("AUDIT getAuditLog Redis unavailable for user={} error={}", userEmail, e.getMessage());
+            return java.util.Collections.emptyList();
+        }
     }
 }

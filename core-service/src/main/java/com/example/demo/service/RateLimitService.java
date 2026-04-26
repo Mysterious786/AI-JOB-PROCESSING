@@ -25,25 +25,33 @@ public class RateLimitService {
      * Uses a sliding window counter in Redis with 1-hour TTL.
      */
     public boolean isAllowed(String userEmail) {
-        String key = String.format(RATE_KEY, userEmail);
-        Long count = redis.opsForValue().increment(key);
-        if (count == null) return false;
-        if (count == 1) {
-            // First request in this window — set TTL
-            redis.expire(key, Duration.ofHours(1));
+        try {
+            String key = String.format(RATE_KEY, userEmail);
+            Long count = redis.opsForValue().increment(key);
+            if (count == null) return true; // allow if Redis unavailable
+            if (count == 1) {
+                redis.expire(key, Duration.ofHours(1));
+            }
+            boolean allowed = count <= jobsPerHour;
+            if (!allowed) {
+                log.warn("Rate limit exceeded for user={} count={} limit={}", userEmail, count, jobsPerHour);
+            }
+            return allowed;
+        } catch (Exception e) {
+            log.warn("RateLimit Redis unavailable for user={} — allowing request. error={}", userEmail, e.getMessage());
+            return true; // fail open — allow if Redis is down
         }
-        boolean allowed = count <= jobsPerHour;
-        if (!allowed) {
-            log.warn("Rate limit exceeded for user={} count={} limit={}", userEmail, count, jobsPerHour);
-        }
-        return allowed;
     }
 
-    /** Returns how many jobs the user has submitted in the current window */
     public long getCurrentCount(String userEmail) {
-        String key = String.format(RATE_KEY, userEmail);
-        String val = redis.opsForValue().get(key);
-        return val == null ? 0 : Long.parseLong(val);
+        try {
+            String key = String.format(RATE_KEY, userEmail);
+            String val = redis.opsForValue().get(key);
+            return val == null ? 0 : Long.parseLong(val);
+        } catch (Exception e) {
+            log.warn("RateLimit getCurrentCount Redis unavailable for user={}", userEmail);
+            return 0;
+        }
     }
 
     public int getLimit() {

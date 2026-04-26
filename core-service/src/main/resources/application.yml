@@ -16,8 +16,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
-      host: red-d7mv0orbc2fs738grg0g
-      port: 6379
+      url: ${REDIS_URL:redis://localhost:6379}
 
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}

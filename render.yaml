@@ -5,6 +5,13 @@
 
 services:
 
+  # ── Key Value (Redis) ───────────────────────────────────────────────────────
+  - type: keyvalue
+    name: aiq-redis
+    plan: free
+    maxmemoryPolicy: noeviction
+    ipAllowList: []   # internal only — no external access needed
+
   # ── 1. API Gateway (public-facing) ─────────────────────────────────────────
   - type: web
     name: aiq-api-gateway
@@ -55,13 +62,13 @@ services:
         fromDatabase:
           name: aiq-postgres
           property: password
-      # Redis — connectionString from Key Value instance
+      # Redis
       - key: REDIS_URL
         fromService:
           name: aiq-redis
           type: keyvalue
           property: connectionString
-      # RabbitMQ — set manually from CloudAMQP after deploy
+      # RabbitMQ — enter values during blueprint setup
       - key: RABBITMQ_HOST
         sync: false
       - key: RABBITMQ_PORT
@@ -70,7 +77,7 @@ services:
         sync: false
       - key: RABBITMQ_DEFAULT_PASS
         sync: false
-      # Secrets — set manually in Render dashboard
+      # Secrets — enter values during blueprint setup
       - key: JWT_SECRET
         sync: false
       - key: OPENAI_API_KEY
@@ -86,13 +93,13 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      # Redis — connectionString from Key Value instance
+      # Redis
       - key: REDIS_URL
         fromService:
           name: aiq-redis
           type: keyvalue
           property: connectionString
-      # RabbitMQ — set manually from CloudAMQP after deploy
+      # RabbitMQ — enter values during blueprint setup
       - key: RABBITMQ_HOST
         sync: false
       - key: RABBITMQ_PORT
@@ -101,19 +108,13 @@ services:
         sync: false
       - key: RABBITMQ_DEFAULT_PASS
         sync: false
-      # Secrets — set manually in Render dashboard
+      # Secrets — enter values during blueprint setup
       - key: OPENAI_API_KEY
         sync: false
 
-# ── Managed Databases ──────────────────────────────────────────────────────────
+# ── Postgres ───────────────────────────────────────────────────────────────────
 databases:
   - name: aiq-postgres
     plan: free
     databaseName: ai_task_queue
     user: admin
-
-# ── Key Value (Redis) ──────────────────────────────────────────────────────────
-keyValueStores:
-  - name: aiq-redis
-    plan: free
-    maxmemoryPolicy: noeviction

@@ -39,6 +39,9 @@ management:
     distribution:
       percentiles-histogram:
         http.server.requests: true
+  health:
+    redis:
+      enabled: false  # Temporarily disable Redis health check
 
 logging:
   level:

@@ -13,8 +13,24 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        // Hardcoded Redis connection for Render deployment
-        LettuceConnectionFactory factory = new LettuceConnectionFactory("red-d7mv0orbc2fs738grg0g", 6379);
+        // Try environment variable first, fallback to hardcoded
+        String redisHost = System.getenv("REDIS_HOST");
+        if (redisHost == null || redisHost.isEmpty()) {
+            redisHost = "red-d7mv0orbc2fs738grg0g";
+        }
+        
+        String redisPortStr = System.getenv("REDIS_PORT");
+        int redisPort = 6379;
+        if (redisPortStr != null && !redisPortStr.isEmpty()) {
+            try {
+                redisPort = Integer.parseInt(redisPortStr);
+            } catch (NumberFormatException e) {
+                redisPort = 6379;
+            }
+        }
+        
+        System.out.println("REDIS CONFIG: Connecting to " + redisHost + ":" + redisPort);
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(redisHost, redisPort);
         return factory;
     }
 

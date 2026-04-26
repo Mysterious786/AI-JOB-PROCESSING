@@ -55,6 +55,9 @@ management:
   endpoint:
     prometheus:
       enabled: true
+  health:
+    redis:
+      enabled: false  # Temporarily disable Redis health check
 
 logging:
   level:

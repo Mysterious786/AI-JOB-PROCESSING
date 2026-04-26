@@ -14,7 +14,16 @@ export default function Home() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [warming, setWarming] = useState(true)
   const contentRef = useRef<HTMLDivElement>(null)
+
+  // Warm up Render services on page load (free tier sleeps after inactivity)
+  useEffect(() => {
+    const API = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://aiq-api-gateway.onrender.com'
+    fetch(`${API}/actuator/health`, { signal: AbortSignal.timeout(30000) })
+      .catch(() => {}) // ignore errors — just waking up
+      .finally(() => setWarming(false))
+  }, [])
 
   useEffect(() => {
     if (contentRef.current) {
@@ -130,8 +139,8 @@ export default function Home() {
 
             {error && <p className="text-sm text-red-300">{error}</p>}
 
-            <AnimatedButton variant="primary" size="lg" className="w-full" type="submit">
-              {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+            <AnimatedButton variant="primary" size="lg" className="w-full" type="submit" disabled={warming}>
+              {warming ? '⏳ Waking up servers...' : loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
             </AnimatedButton>
 
             <button

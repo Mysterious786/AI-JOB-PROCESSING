@@ -1,0 +1,6 @@
+gateway:
+  upstream:
+    core-service: ${CORE_SERVICE_URL}
+    worker-service: ${WORKER_SERVICE_URL}
+  cors:
+    allowed-origins: ${FRONTEND_URL}

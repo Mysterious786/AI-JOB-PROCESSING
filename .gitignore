@@ -1,0 +1,30 @@
+# ── Secrets — NEVER commit these ──────────────────────────────
+.env
+.env.local
+.env.production
+*.env
+
+# ── Java build output ──────────────────────────────────────────
+target/
+*.jar
+*.war
+*.class
+
+# ── Node / Next.js ────────────────────────────────────────────
+node_modules/
+.next/
+Client/.env.local
+
+# ── macOS ─────────────────────────────────────────────────────
+.DS_Store
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+ai-task-queue/logs/
+core-service/ai-task-queue/
+worker-service/ai-task-queue/
+
+# ── IDE ───────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml

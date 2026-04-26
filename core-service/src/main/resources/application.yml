@@ -1,0 +1,66 @@
+server:
+  port: 8082
+
+spring:
+  config:
+    import: optional:file:.env[.properties],optional:file:../.env[.properties]
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5433}/ai_task_queue
+    username: ${POSTGRES_USER:admin}
+    password: ${POSTGRES_PASSWORD:adminpassword}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  redis:
+    host: localhost
+    port: 6379
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_DEFAULT_USER:guest}
+    password: ${RABBITMQ_DEFAULT_PASS:guest}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-secret-key-change-in-production-1234567890}
+    access-token-expiration-ms: 900000
+    refresh-token-expiration-ms: 604800000
+  rate-limit:
+    jobs-per-hour: 20
+
+contract:
+  queue:
+    exchange: ai.jobs
+    name: ai.jobs.new
+    routing-key: job.new
+  redis:
+    status-key-pattern: job:status:%s
+    creator-key-pattern: job:creator:%s
+    result-key-pattern: job:result:%s
+    error-key-pattern: job:error:%s
+    created-at-key-pattern: job:createdat:%s
+    updated-at-key-pattern: job:updatedat:%s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+
+logging:
+  level:
+    com.example.demo: INFO
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ./ai-task-queue/logs/core-service.log
+    max-size: 10MB
+    max-history: 7

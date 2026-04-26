@@ -1,0 +1,63 @@
+server:
+  port: 8083
+
+spring:
+  config:
+    import: optional:file:.env[.properties],optional:file:../.env[.properties]
+  redis:
+    host: localhost
+    port: 6379
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_DEFAULT_USER:guest}
+    password: ${RABBITMQ_DEFAULT_PASS:guest}
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+          temperature: 0.7
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,info,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+logging:
+  level:
+    com.example.worker: DEBUG
+    org.springframework.amqp: INFO
+    org.springframework.data.redis: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ./ai-task-queue/logs/worker-service.log
+    max-size: 10MB
+    max-history: 7
+
+contract:
+  queue:
+    exchange: ai.jobs
+    name: ai.jobs.new
+    routing-key: job.new
+  redis:
+    status-key-pattern: job:status:%s
+    result-key-pattern: job:result:%s
+    error-key-pattern: job:error:%s
+    updated-at-key-pattern: job:updatedat:%s
+

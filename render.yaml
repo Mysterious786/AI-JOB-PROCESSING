@@ -1,0 +1,129 @@
+## ─────────────────────────────────────────────────────────────────────────────
+## Render Blueprint — AI Task Queue
+## Deploy everything at once: https://dashboard.render.com/blueprints
+## ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── 1. API Gateway (public-facing) ─────────────────────────────────────────
+  - type: web
+    name: aiq-api-gateway
+    runtime: docker
+    dockerfilePath: ./api-gateway/Dockerfile
+    dockerContext: ./api-gateway
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: CORE_SERVICE_URL
+        value: https://aiq-core-service.onrender.com
+      - key: WORKER_SERVICE_URL
+        value: https://aiq-worker-service.onrender.com
+      - key: FRONTEND_URL
+        value: https://aiq-frontend.vercel.app   # update after Vercel deploy
+
+  # ── 2. Core Service (private) ───────────────────────────────────────────────
+  - type: web
+    name: aiq-core-service
+    runtime: docker
+    dockerfilePath: ./core-service/Dockerfile
+    dockerContext: ./core-service
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PGHOST
+        fromDatabase:
+          name: aiq-postgres
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: aiq-postgres
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: aiq-postgres
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: aiq-postgres
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: aiq-postgres
+          property: password
+      - key: REDIS_HOST
+        fromService:
+          name: aiq-redis
+          type: redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: aiq-redis
+          type: redis
+          property: port
+      - key: REDIS_PASSWORD
+        fromService:
+          name: aiq-redis
+          type: redis
+          property: password
+      - key: RABBITMQ_HOST
+        sync: false   # set manually from CloudAMQP
+      - key: RABBITMQ_PORT
+        value: "5672"
+      - key: RABBITMQ_DEFAULT_USER
+        sync: false   # set manually from CloudAMQP
+      - key: RABBITMQ_DEFAULT_PASS
+        sync: false   # set manually from CloudAMQP
+      - key: JWT_SECRET
+        sync: false   # set manually in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false   # set manually in Render dashboard
+
+  # ── 3. Worker Service (private background worker) ───────────────────────────
+  - type: worker
+    name: aiq-worker-service
+    runtime: docker
+    dockerfilePath: ./worker-service/Dockerfile
+    dockerContext: ./worker-service
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: REDIS_HOST
+        fromService:
+          name: aiq-redis
+          type: redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: aiq-redis
+          type: redis
+          property: port
+      - key: REDIS_PASSWORD
+        fromService:
+          name: aiq-redis
+          type: redis
+          property: password
+      - key: RABBITMQ_HOST
+        sync: false
+      - key: RABBITMQ_PORT
+        value: "5672"
+      - key: RABBITMQ_DEFAULT_USER
+        sync: false
+      - key: RABBITMQ_DEFAULT_PASS
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+# ── Managed Databases ──────────────────────────────────────────────────────────
+databases:
+  - name: aiq-postgres
+    plan: free
+    databaseName: ai_task_queue
+    user: admin
+
+  - name: aiq-redis
+    plan: free

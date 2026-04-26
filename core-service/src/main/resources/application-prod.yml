@@ -1,0 +1,21 @@
+spring:
+  config:
+    import: ""   # no .env file in production — use real env vars
+  datasource:
+    # Render injects PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD for managed Postgres
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_DEFAULT_USER}
+    password: ${RABBITMQ_DEFAULT_PASS}
+
+logging:
+  file:
+    name: ""   # no file logging in prod — stdout only (Render captures stdout)

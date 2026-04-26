@@ -1,0 +1,19 @@
+spring:
+  config:
+    import: ""   # no .env file in production — use real env vars
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_DEFAULT_USER}
+    password: ${RABBITMQ_DEFAULT_PASS}
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+
+logging:
+  file:
+    name: ""   # no file logging in prod — stdout only

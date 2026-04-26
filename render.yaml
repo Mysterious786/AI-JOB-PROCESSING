@@ -63,11 +63,13 @@ services:
           name: aiq-postgres
           property: password
       # Redis
-      - key: REDIS_URL
+      - key: REDIS_HOST
         fromService:
           name: aiq-redis
           type: keyvalue
-          property: connectionString
+          property: host
+      - key: REDIS_PORT
+        value: "6379"
       # RabbitMQ — CloudAMQP (sign up at https://www.cloudamqp.com/)
       # After signup, get connection URL and set these:
       - key: RABBITMQ_HOST
@@ -102,11 +104,13 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       # Redis
-      - key: REDIS_URL
+      - key: REDIS_HOST
         fromService:
           name: aiq-redis
           type: keyvalue
-          property: connectionString
+          property: host
+      - key: REDIS_PORT
+        value: "6379"
       # RabbitMQ — CloudAMQP (sign up at https://www.cloudamqp.com/)
       # After signup, get connection URL and set these:
       - key: RABBITMQ_HOST

@@ -55,11 +55,11 @@ services:
         fromDatabase:
           name: aiq-postgres
           property: password
-      # Redis — use connectionString, parsed by prod config
+      # Redis — connectionString from Key Value instance
       - key: REDIS_URL
         fromService:
           name: aiq-redis
-          type: redis
+          type: keyvalue
           property: connectionString
       # RabbitMQ — set manually from CloudAMQP after deploy
       - key: RABBITMQ_HOST
@@ -86,11 +86,11 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      # Redis
+      # Redis — connectionString from Key Value instance
       - key: REDIS_URL
         fromService:
           name: aiq-redis
-          type: redis
+          type: keyvalue
           property: connectionString
       # RabbitMQ — set manually from CloudAMQP after deploy
       - key: RABBITMQ_HOST
@@ -112,5 +112,8 @@ databases:
     databaseName: ai_task_queue
     user: admin
 
+# ── Key Value (Redis) ──────────────────────────────────────────────────────────
+keyValueStores:
   - name: aiq-redis
     plan: free
+    maxmemoryPolicy: noeviction

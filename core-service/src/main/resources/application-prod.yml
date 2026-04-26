@@ -7,9 +7,8 @@ spring:
     username: ${PGUSER}
     password: ${PGPASSWORD}
   redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
+    # Render injects REDIS_URL as rediss://:<password>@<host>:<port>
+    url: ${REDIS_URL}
   rabbitmq:
     host: ${RABBITMQ_HOST}
     port: ${RABBITMQ_PORT:5672}

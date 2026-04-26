@@ -23,7 +23,7 @@ services:
       - key: FRONTEND_URL
         value: https://aiq-frontend.vercel.app   # update after Vercel deploy
 
-  # ── 2. Core Service (private) ───────────────────────────────────────────────
+  # ── 2. Core Service ─────────────────────────────────────────────────────────
   - type: web
     name: aiq-core-service
     runtime: docker
@@ -34,6 +34,7 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      # Postgres — injected from managed DB
       - key: PGHOST
         fromDatabase:
           name: aiq-postgres
@@ -54,35 +55,28 @@ services:
         fromDatabase:
           name: aiq-postgres
           property: password
-      - key: REDIS_HOST
+      # Redis — use connectionString, parsed by prod config
+      - key: REDIS_URL
         fromService:
           name: aiq-redis
           type: redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          name: aiq-redis
-          type: redis
-          property: port
-      - key: REDIS_PASSWORD
-        fromService:
-          name: aiq-redis
-          type: redis
-          property: password
+          property: connectionString
+      # RabbitMQ — set manually from CloudAMQP after deploy
       - key: RABBITMQ_HOST
-        sync: false   # set manually from CloudAMQP
+        sync: false
       - key: RABBITMQ_PORT
         value: "5672"
       - key: RABBITMQ_DEFAULT_USER
-        sync: false   # set manually from CloudAMQP
+        sync: false
       - key: RABBITMQ_DEFAULT_PASS
-        sync: false   # set manually from CloudAMQP
+        sync: false
+      # Secrets — set manually in Render dashboard
       - key: JWT_SECRET
-        sync: false   # set manually in Render dashboard
+        sync: false
       - key: OPENAI_API_KEY
-        sync: false   # set manually in Render dashboard
+        sync: false
 
-  # ── 3. Worker Service (private background worker) ───────────────────────────
+  # ── 3. Worker Service (background worker) ───────────────────────────────────
   - type: worker
     name: aiq-worker-service
     runtime: docker
@@ -92,21 +86,13 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      - key: REDIS_HOST
+      # Redis
+      - key: REDIS_URL
         fromService:
           name: aiq-redis
           type: redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          name: aiq-redis
-          type: redis
-          property: port
-      - key: REDIS_PASSWORD
-        fromService:
-          name: aiq-redis
-          type: redis
-          property: password
+          property: connectionString
+      # RabbitMQ — set manually from CloudAMQP after deploy
       - key: RABBITMQ_HOST
         sync: false
       - key: RABBITMQ_PORT
@@ -115,6 +101,7 @@ services:
         sync: false
       - key: RABBITMQ_DEFAULT_PASS
         sync: false
+      # Secrets — set manually in Render dashboard
       - key: OPENAI_API_KEY
         sync: false
 

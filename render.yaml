@@ -68,7 +68,6 @@ services:
           name: aiq-redis
           type: keyvalue
           property: connectionString
-      # RabbitMQ — enter values during blueprint setup
       - key: RABBITMQ_HOST
         sync: false
       - key: RABBITMQ_PORT
@@ -77,19 +76,22 @@ services:
         sync: false
       - key: RABBITMQ_DEFAULT_PASS
         sync: false
+      - key: RABBITMQ_VHOST
+        sync: false
       # Secrets — enter values during blueprint setup
       - key: JWT_SECRET
         sync: false
       - key: OPENAI_API_KEY
         sync: false
 
-  # ── 3. Worker Service (background worker) ───────────────────────────────────
-  - type: worker
+  # ── 3. Worker Service (runs as web service on free plan) ────────────────────
+  - type: web
     name: aiq-worker-service
     runtime: docker
     dockerfilePath: ./worker-service/Dockerfile
     dockerContext: ./worker-service
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
@@ -107,6 +109,8 @@ services:
       - key: RABBITMQ_DEFAULT_USER
         sync: false
       - key: RABBITMQ_DEFAULT_PASS
+        sync: false
+      - key: RABBITMQ_VHOST
         sync: false
       # Secrets — enter values during blueprint setup
       - key: OPENAI_API_KEY

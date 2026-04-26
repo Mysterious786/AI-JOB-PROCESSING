@@ -7,14 +7,15 @@ spring:
     username: ${PGUSER}
     password: ${PGPASSWORD}
   redis:
-    # Render injects REDIS_URL as rediss://:<password>@<host>:<port>
-    url: ${REDIS_URL}
+    # Fixed Redis configuration for Render
+    host: red-d7mv0orbc2fs738grg0g
+    port: 6379
   rabbitmq:
     host: ${RABBITMQ_HOST}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_DEFAULT_USER}
     password: ${RABBITMQ_DEFAULT_PASS}
-    virtual-host: ${RABBITMQ_VHOST:/}
+    virtual-host: ${RABBITMQ_VHOST:jbkdkvkb}
 
 logging:
   file:

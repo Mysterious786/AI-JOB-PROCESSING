@@ -1,19 +1,33 @@
 spring:
   config:
     import: ""   # no .env file in production — use real env vars
-  redis:
-    # Render injects REDIS_URL as rediss://:<password>@<host>:<port>
-    url: ${REDIS_URL}
+
+  data:
+    redis:
+      url: ${REDIS_URL:redis://red-d7mv0orbc2fs738grg0g:6379}
+
   rabbitmq:
-    host: ${RABBITMQ_HOST}
+    host: ${RABBITMQ_HOST:chameleon.lmq.cloudamqp.com}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_DEFAULT_USER}
+    username: ${RABBITMQ_DEFAULT_USER:jbkdkvkb}
     password: ${RABBITMQ_DEFAULT_PASS}
-    virtual-host: ${RABBITMQ_VHOST:/}
+    virtual-host: ${RABBITMQ_VHOST:jbkdkvkb}
+
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+          temperature: 0.7
+
+management:
+  health:
+    redis:
+      enabled: false
+    rabbit:
+      enabled: false
 
 logging:
   file:
-    name: ""   # no file logging in prod — stdout only (Render captures stdout)
+    name: ""   # stdout only in prod

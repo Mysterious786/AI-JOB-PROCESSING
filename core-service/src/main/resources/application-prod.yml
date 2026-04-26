@@ -1,22 +1,37 @@
 spring:
   config:
     import: ""   # no .env file in production — use real env vars
+
   datasource:
-    # Render injects PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD for managed Postgres
     url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
     username: ${PGUSER}
     password: ${PGPASSWORD}
-  redis:
-    # Fixed Redis configuration for Render
-    host: red-d7mv0orbc2fs738grg0g
-    port: 6379
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  data:
+    redis:
+      url: ${REDIS_URL:redis://red-d7mv0orbc2fs738grg0g:6379}
+
   rabbitmq:
-    host: ${RABBITMQ_HOST}
+    host: ${RABBITMQ_HOST:chameleon.lmq.cloudamqp.com}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_DEFAULT_USER}
+    username: ${RABBITMQ_DEFAULT_USER:jbkdkvkb}
     password: ${RABBITMQ_DEFAULT_PASS}
     virtual-host: ${RABBITMQ_VHOST:jbkdkvkb}
 
+management:
+  health:
+    redis:
+      enabled: false
+    rabbit:
+      enabled: false
+
 logging:
   file:
-    name: ""   # no file logging in prod — stdout only (Render captures stdout)
+    name: ""   # stdout only in prod

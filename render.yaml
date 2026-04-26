@@ -68,15 +68,21 @@ services:
           name: aiq-redis
           type: keyvalue
           property: connectionString
+      # RabbitMQ — CloudAMQP (sign up at https://www.cloudamqp.com/)
+      # After signup, get connection URL and set these:
       - key: RABBITMQ_HOST
+        value: # e.g., jackal.rmq.cloudamqp.com
         sync: false
       - key: RABBITMQ_PORT
         value: "5672"
       - key: RABBITMQ_DEFAULT_USER
+        value: # CloudAMQP username
         sync: false
       - key: RABBITMQ_DEFAULT_PASS
+        value: # CloudAMQP password
         sync: false
       - key: RABBITMQ_VHOST
+        value: # CloudAMQP vhost (usually same as username)
         sync: false
       # Secrets — enter values during blueprint setup
       - key: JWT_SECRET
@@ -101,16 +107,21 @@ services:
           name: aiq-redis
           type: keyvalue
           property: connectionString
-      # RabbitMQ — enter values during blueprint setup
+      # RabbitMQ — CloudAMQP (sign up at https://www.cloudamqp.com/)
+      # After signup, get connection URL and set these:
       - key: RABBITMQ_HOST
+        value: # e.g., jackal.rmq.cloudamqp.com
         sync: false
       - key: RABBITMQ_PORT
         value: "5672"
       - key: RABBITMQ_DEFAULT_USER
+        value: # CloudAMQP username
         sync: false
       - key: RABBITMQ_DEFAULT_PASS
+        value: # CloudAMQP password
         sync: false
       - key: RABBITMQ_VHOST
+        value: # CloudAMQP vhost (usually same as username)
         sync: false
       # Secrets — enter values during blueprint setup
       - key: OPENAI_API_KEY

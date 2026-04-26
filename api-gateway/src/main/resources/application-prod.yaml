@@ -3,4 +3,4 @@ gateway:
     core-service: ${CORE_SERVICE_URL}
     worker-service: ${WORKER_SERVICE_URL}
   cors:
-    allowed-origins: ${FRONTEND_URL}
+    allowed-origins: ${FRONTEND_URL:https://jobp-4oqaxkliw-mysterious786s-projects.vercel.app},https://jobp-mysterious786s-projects.vercel.app,https://aiq-frontend.vercel.app

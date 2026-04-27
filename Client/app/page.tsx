@@ -17,12 +17,16 @@ export default function Home() {
   const [warming, setWarming] = useState(true)
   const contentRef = useRef<HTMLDivElement>(null)
 
-  // Warm up Render services on page load (free tier sleeps after inactivity)
+  // Warm up ALL Render services on page load (free tier sleeps after 15min inactivity)
   useEffect(() => {
     const API = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://aiq-api-gateway.onrender.com'
-    fetch(`${API}/actuator/health`, { signal: AbortSignal.timeout(30000) })
-      .catch(() => {}) // ignore errors — just waking up
-      .finally(() => setWarming(false))
+    const timeout = { signal: AbortSignal.timeout(60000) }
+
+    // Ping gateway + core service in parallel
+    Promise.allSettled([
+      fetch(`${API}/actuator/health`, timeout),
+      fetch(`${API}/core/actuator/health`, timeout),
+    ]).finally(() => setWarming(false))
   }, [])
 
   useEffect(() => {
@@ -140,7 +144,7 @@ export default function Home() {
             {error && <p className="text-sm text-red-300">{error}</p>}
 
             <AnimatedButton variant="primary" size="lg" className="w-full" type="submit" disabled={warming}>
-              {warming ? '⏳ Waking up servers...' : loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+              {warming ? '⏳ Waking up servers... (30-60s on free tier)' : loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
             </AnimatedButton>
 
             <button

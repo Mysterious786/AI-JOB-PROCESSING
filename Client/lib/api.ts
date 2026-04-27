@@ -88,11 +88,18 @@ async function request<T>(path: string, init: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
-    const message = await response.text()
+    const text = await response.text()
     if (response.status === 401 || response.status === 403) {
       throw new ApiError('Session expired. Please sign in again.', response.status)
     }
-    throw new ApiError(message || `Request failed with status ${response.status}`, response.status)
+    // Try to parse the message field from the JSON error body
+    try {
+      const json = JSON.parse(text)
+      throw new ApiError(json.message || text || `Request failed with status ${response.status}`, response.status)
+    } catch (e) {
+      if (e instanceof ApiError) throw e
+      throw new ApiError(text || `Request failed with status ${response.status}`, response.status)
+    }
   }
 
   if (response.status === 204) return undefined as T
